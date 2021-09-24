@@ -62,7 +62,6 @@ impl Debug for dyn SpdmTransportEncap {
 }
 
 pub struct SpdmContext<'a> {
-    pub device_io: &'a mut dyn SpdmDeviceIo,
     pub transport_encap: &'a mut dyn SpdmTransportEncap,
 
     pub config_info: SpdmConfigInfo,
@@ -77,13 +76,11 @@ pub struct SpdmContext<'a> {
 
 impl<'a> SpdmContext<'a> {
     pub fn new(
-        device_io: &'a mut dyn SpdmDeviceIo,
         transport_encap: &'a mut dyn SpdmTransportEncap,
         config_info: SpdmConfigInfo,
         provision_info: SpdmProvisionInfo,
     ) -> Self {
         SpdmContext {
-            device_io,
             transport_encap,
             config_info,
             negotiate_info: SpdmNegotiateInfo::default(),

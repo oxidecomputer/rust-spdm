@@ -23,12 +23,10 @@ pub fn get_test_key_directory() -> PathBuf {
 }
 
 pub fn new_context<'a>(
-    my_spdm_device_io: &'a mut MySpdmDeviceIo,
     pcidoe_transport_encap: &'a mut PciDoeTransportEncap,
 ) -> SpdmContext<'a> {
     let (config_info, provision_info) = create_info();
     let context = SpdmContext::new(
-        my_spdm_device_io,
         pcidoe_transport_encap,
         config_info,
         provision_info,
@@ -102,22 +100,6 @@ pub fn create_info() -> (common::SpdmConfigInfo, common::SpdmProvisionInfo) {
     };
 
     (config_info, provision_info)
-}
-
-pub struct MySpdmDeviceIo;
-
-impl SpdmDeviceIo for MySpdmDeviceIo {
-    fn send(&mut self, _buffer: &[u8]) -> SpdmResult {
-        todo!()
-    }
-
-    fn receive(&mut self, _buffer: &mut [u8]) -> Result<usize, usize> {
-        todo!()
-    }
-
-    fn flush_all(&mut self) -> SpdmResult {
-        todo!()
-    }
 }
 
 enum_builder! {

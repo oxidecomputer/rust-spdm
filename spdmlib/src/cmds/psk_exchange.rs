@@ -202,8 +202,7 @@ mod tests {
         };
 
         let pcidoe_transport_encap = &mut PciDoeTransportEncap {};
-        let my_spdm_device_io = &mut MySpdmDeviceIo;
-        let mut context = new_context(my_spdm_device_io, pcidoe_transport_encap);
+        let mut context = new_context(pcidoe_transport_encap);
 
         value.spdm_encode(&mut context, &mut writer);
         let mut reader = Reader::init(u8_slice);
@@ -250,8 +249,7 @@ mod tests {
         };
 
         let pcidoe_transport_encap = &mut PciDoeTransportEncap {};
-        let my_spdm_device_io = &mut MySpdmDeviceIo;
-        let mut context = new_context(my_spdm_device_io, pcidoe_transport_encap);
+        let mut context = new_context(pcidoe_transport_encap);
 
         value.spdm_encode(&mut context, &mut writer);
         let mut reader = Reader::init(u8_slice);
@@ -300,10 +298,8 @@ mod tests {
             },
         };
 
-        
         let pcidoe_transport_encap = &mut PciDoeTransportEncap {};
-        let my_spdm_device_io = &mut MySpdmDeviceIo;
-        let mut context = new_context(my_spdm_device_io, pcidoe_transport_encap);
+        let mut context = new_context(pcidoe_transport_encap);
         context.negotiate_info.base_hash_sel = SpdmBaseHashAlgo::TPM_ALG_SHA_512;
         context.runtime_info.need_measurement_summary_hash = true;
 
@@ -333,7 +329,7 @@ mod tests {
         let mut writer = Writer::init(u8_slice);
 
         context.runtime_info.need_measurement_summary_hash = false;
-        
+
         value.spdm_encode(&mut context, &mut writer);
         let mut reader = Reader::init(u8_slice);
         assert_eq!(420, reader.left());
@@ -371,10 +367,8 @@ mod tests {
             },
         };
 
-        
         let pcidoe_transport_encap = &mut PciDoeTransportEncap {};
-        let my_spdm_device_io = &mut MySpdmDeviceIo;
-        let mut context = new_context(my_spdm_device_io, pcidoe_transport_encap);
+        let mut context = new_context(pcidoe_transport_encap);
         context.negotiate_info.base_hash_sel = SpdmBaseHashAlgo::TPM_ALG_SHA_512;
         context.runtime_info.need_measurement_summary_hash = true;
 

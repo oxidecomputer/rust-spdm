@@ -202,8 +202,7 @@ mod tests {
         };
 
         let pcidoe_transport_encap = &mut PciDoeTransportEncap {};
-        let my_spdm_device_io = &mut MySpdmDeviceIo;
-        let mut context = new_context(my_spdm_device_io, pcidoe_transport_encap);
+        let mut context = new_context(pcidoe_transport_encap);
 
         value.spdm_encode(&mut context, &mut writer);
         let mut reader = Reader::init(u8_slice);
@@ -225,8 +224,7 @@ mod tests {
             data: [100u8; 32],
         };
         let pcidoe_transport_encap = &mut PciDoeTransportEncap {};
-        let my_spdm_device_io = &mut MySpdmDeviceIo;
-        let mut context = new_context(my_spdm_device_io, pcidoe_transport_encap);
+        let mut context = new_context(pcidoe_transport_encap);
 
         value.spdm_encode(&mut context, &mut writer);
         let mut reader = Reader::init(u8_slice);
@@ -244,8 +242,7 @@ mod tests {
         let mut writer = Writer::init(u8_slice);
         let value = SpdmErrorResponseVendorExtData::default();
         let pcidoe_transport_encap = &mut PciDoeTransportEncap {};
-        let my_spdm_device_io = &mut MySpdmDeviceIo;
-        let mut context = new_context(my_spdm_device_io, pcidoe_transport_encap);
+        let mut context = new_context(pcidoe_transport_encap);
 
         value.spdm_encode(&mut context, &mut writer);
         let mut reader = Reader::init(u8_slice);
@@ -273,8 +270,7 @@ mod tests {
         };
 
         let pcidoe_transport_encap = &mut PciDoeTransportEncap {};
-        let my_spdm_device_io = &mut MySpdmDeviceIo;
-        let mut context = new_context(my_spdm_device_io, pcidoe_transport_encap);
+        let mut context = new_context(pcidoe_transport_encap);
 
         let mut spdm_error_response_payload = new_spdm_response(value, &mut context);
 

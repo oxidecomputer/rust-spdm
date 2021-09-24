@@ -56,8 +56,7 @@ mod tests {
 
         
         let pcidoe_transport_encap = &mut PciDoeTransportEncap{};
-        let my_spdm_device_io = &mut MySpdmDeviceIo;
-        let mut context = new_context(my_spdm_device_io, pcidoe_transport_encap);
+        let mut context = new_context(pcidoe_transport_encap);
 
         value.spdm_encode(&mut context,&mut writer);
         let mut reader = Reader::init(u8_slice);

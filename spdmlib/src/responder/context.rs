@@ -10,6 +10,7 @@ use codec::{Codec, Reader};
 
 pub struct ResponderContext<'a> {
     pub common: common::SpdmContext<'a>,
+    device_io: &'a mut dyn SpdmDeviceIo
 }
 
 impl<'a> ResponderContext<'a> {
@@ -21,11 +22,11 @@ impl<'a> ResponderContext<'a> {
     ) -> Self {
         ResponderContext {
             common: common::SpdmContext::new(
-                device_io,
                 transport_encap,
                 config_info,
                 provision_info,
             ),
+            device_io: device_io
         }
     }
 
@@ -35,7 +36,7 @@ impl<'a> ResponderContext<'a> {
             .common
             .transport_encap
             .encap(send_buffer, &mut transport_buffer, false)?;
-        self.common.device_io.send(&transport_buffer[..used])
+        self.device_io.send(&transport_buffer[..used])
     }
 
     pub fn send_secured_message(&mut self, session_id: u32, send_buffer: &[u8]) -> SpdmResult {
@@ -63,7 +64,7 @@ impl<'a> ResponderContext<'a> {
             &mut transport_buffer,
             true,
         )?;
-        self.common.device_io.send(&transport_buffer[..used])
+        self.device_io.send(&transport_buffer[..used])
     }
 
     pub fn process_message(&mut self) -> Result<bool, (usize, [u8; 1024])> {
@@ -114,7 +115,7 @@ impl<'a> ResponderContext<'a> {
         info!("receive_message!\n");
 
         let mut transport_buffer = [0u8; config::MAX_SPDM_TRANSPORT_SIZE];
-        let used = self.common.device_io.receive(receive_buffer)?;
+        let used = self.device_io.receive(receive_buffer)?;
 
         let (used, secured_message) = self
             .common

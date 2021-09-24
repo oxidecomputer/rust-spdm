@@ -68,10 +68,8 @@ mod tests {
             },
         };
 
-        
         let pcidoe_transport_encap = &mut PciDoeTransportEncap {};
-        let my_spdm_device_io = &mut MySpdmDeviceIo;
-        let mut context = new_context(my_spdm_device_io, pcidoe_transport_encap);
+        let mut context = new_context(pcidoe_transport_encap);
         context.negotiate_info.base_hash_sel = SpdmBaseHashAlgo::TPM_ALG_SHA_512;
 
         value.spdm_encode(&mut context, &mut writer);
@@ -87,13 +85,12 @@ mod tests {
         assert_eq!(14, reader.left());
     }
     #[test]
-    fn test_case0_spdm_psk_finish_response_payload(){
+    fn test_case0_spdm_psk_finish_response_payload() {
         let u8_slice = &mut [0u8; 8];
         let mut writer = Writer::init(u8_slice);
         let value = SpdmPskFinishResponsePayload {};
         let pcidoe_transport_encap = &mut PciDoeTransportEncap {};
-        let my_spdm_device_io = &mut MySpdmDeviceIo;
-        let mut context = new_context(my_spdm_device_io, pcidoe_transport_encap);
+        let mut context = new_context(pcidoe_transport_encap);
         value.spdm_encode(&mut context, &mut writer);
         let mut reader = Reader::init(u8_slice);
         SpdmPskFinishResponsePayload::spdm_read(&mut context, &mut reader);

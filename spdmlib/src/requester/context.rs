@@ -9,7 +9,8 @@ use crate::msgs::*;
 
 pub struct RequesterContext<'a> {
     pub common: common::SpdmContext<'a>,
-}
+    device_io: &'a mut dyn SpdmDeviceIo
+ }
 
 impl<'a> RequesterContext<'a> {
     pub fn new(
@@ -20,11 +21,11 @@ impl<'a> RequesterContext<'a> {
     ) -> Self {
         RequesterContext {
             common: common::SpdmContext::new(
-                device_io,
                 transport_encap,
                 config_info,
                 provision_info,
             ),
+            device_io: device_io
         }
     }
 
@@ -85,7 +86,7 @@ impl<'a> RequesterContext<'a> {
             .common
             .transport_encap
             .encap(send_buffer, &mut transport_buffer, false)?;
-        self.common.device_io.send(&transport_buffer[..used])
+        self.device_io.send(&transport_buffer[..used])
     }
 
     pub fn send_secured_message(&mut self, session_id: u32, send_buffer: &[u8]) -> SpdmResult {
@@ -113,7 +114,7 @@ impl<'a> RequesterContext<'a> {
             &mut transport_buffer,
             true,
         )?;
-        self.common.device_io.send(&transport_buffer[..used])
+        self.device_io.send(&transport_buffer[..used])
     }
 
     pub fn receive_message(&mut self, receive_buffer: &mut [u8]) -> SpdmResult<usize> {
@@ -121,7 +122,6 @@ impl<'a> RequesterContext<'a> {
 
         let mut transport_buffer = [0u8; config::MAX_SPDM_TRANSPORT_SIZE];
         let used = self
-            .common
             .device_io
             .receive(&mut transport_buffer)
             .map_err(|_| spdm_err!(EIO))?;
@@ -148,7 +148,6 @@ impl<'a> RequesterContext<'a> {
         let mut encoded_receive_buffer = [0u8; config::MAX_SPDM_TRANSPORT_SIZE];
 
         let used = self
-            .common
             .device_io
             .receive(&mut transport_buffer)
             .map_err(|_| spdm_err!(EIO))?;
