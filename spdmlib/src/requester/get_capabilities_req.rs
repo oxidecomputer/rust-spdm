@@ -6,23 +6,11 @@ use crate::error::SpdmResult;
 use crate::requester::*;
 
 impl<'a> RequesterContext<'a> {
+
     pub fn send_receive_spdm_capability(&mut self) -> SpdmResult {
         let mut send_buffer = [0u8; config::MAX_SPDM_TRANSPORT_SIZE];
-        let mut writer = Writer::init(&mut send_buffer);
-        let request = SpdmMessage {
-            header: SpdmMessageHeader {
-                version: SpdmVersion::SpdmVersion11,
-                request_response_code: SpdmResponseResponseCode::SpdmRequestGetCapabilities,
-            },
-            payload: SpdmMessagePayload::SpdmGetCapabilitiesRequest(
-                SpdmGetCapabilitiesRequestPayload {
-                    ct_exponent: self.common.config_info.req_ct_exponent,
-                    flags: self.common.config_info.req_capabilities,
-                },
-            ),
-        };
-        request.spdm_encode(&mut self.common, &mut writer);
-        let used = writer.used();
+        let used = self.encode_spdm_capability(&mut send_buffer);
+
 
         self.send_message(&send_buffer[..used])?;
 
@@ -39,8 +27,29 @@ impl<'a> RequesterContext<'a> {
         // Receive
         let mut receive_buffer = [0u8; config::MAX_SPDM_TRANSPORT_SIZE];
         let used = self.receive_message(&mut receive_buffer)?;
+        self.handle_spdm_capability_response(&receive_buffer[..used])
+    }
 
-        let mut reader = Reader::init(&receive_buffer[..used]);
+    pub fn encode_spdm_capability(&mut self, buf: &mut [u8]) -> usize {
+        let mut writer = Writer::init(buf);
+        let request = SpdmMessage {
+            header: SpdmMessageHeader {
+                version: SpdmVersion::SpdmVersion11,
+                request_response_code: SpdmResponseResponseCode::SpdmRequestGetCapabilities,
+            },
+            payload: SpdmMessagePayload::SpdmGetCapabilitiesRequest(
+                SpdmGetCapabilitiesRequestPayload {
+                    ct_exponent: self.common.config_info.req_ct_exponent,
+                    flags: self.common.config_info.req_capabilities,
+                },
+            ),
+        };
+        request.spdm_encode(&mut self.common, &mut writer);
+        writer.used()
+    }
+
+    pub fn handle_spdm_capability_response(&mut self, buf: &[u8]) -> SpdmResult {
+        let mut reader = Reader::init(buf);
         match SpdmMessageHeader::read(&mut reader) {
             Some(message_header) => match message_header.request_response_code {
                 SpdmResponseResponseCode::SpdmResponseCapabilities => {
@@ -60,7 +69,7 @@ impl<'a> RequesterContext<'a> {
                             .common
                             .runtime_info
                             .message_a
-                            .append_message(&receive_buffer[..used])
+                            .append_message(&buf[..used])
                             .is_none()
                         {
                             return spdm_result_err!(ENOMEM);
