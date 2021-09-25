@@ -8,7 +8,26 @@ use crate::requester::*;
 impl<'a> RequesterContext<'a> {
     pub fn send_receive_spdm_algorithm(&mut self) -> SpdmResult {
         let mut send_buffer = [0u8; config::MAX_SPDM_TRANSPORT_SIZE];
-        let mut writer = Writer::init(&mut send_buffer);
+        let used = self.encode_spdm_algorithm(&mut send_buffer);
+        self.send_message(&send_buffer[..used])?;
+
+        if self
+            .common
+            .runtime_info
+            .message_a
+            .append_message(&send_buffer[..used])
+            .is_none()
+        {
+            return spdm_result_err!(ENOMEM);
+        }
+        // Receive
+        let mut receive_buffer = [0u8; config::MAX_SPDM_TRANSPORT_SIZE];
+        let used = self.receive_message(&mut receive_buffer)?;
+        self.handle_spdm_algorithm_response(&receive_buffer[..used])
+    }
+
+    pub fn encode_spdm_algorithm(&mut self, buf: &mut [u8]) -> usize {
+        let mut writer = Writer::init(buf);
         let request = SpdmMessage {
             header: SpdmMessageHeader {
                 version: SpdmVersion::SpdmVersion11,
@@ -54,24 +73,11 @@ impl<'a> RequesterContext<'a> {
             ),
         };
         request.spdm_encode(&mut self.common, &mut writer);
-        let used = writer.used();
+        writer.used()
+    }
 
-        self.send_message(&send_buffer[..used])?;
-
-        if self
-            .common
-            .runtime_info
-            .message_a
-            .append_message(&send_buffer[..used])
-            .is_none()
-        {
-            return spdm_result_err!(ENOMEM);
-        }
-        // Receive
-        let mut receive_buffer = [0u8; config::MAX_SPDM_TRANSPORT_SIZE];
-        let used = self.receive_message(&mut receive_buffer)?;
-
-        let mut reader = Reader::init(&receive_buffer[..used]);
+    pub fn handle_spdm_algorithm_response(&mut self, buf: &[u8]) -> SpdmResult {
+        let mut reader = Reader::init(buf);
         match SpdmMessageHeader::read(&mut reader) {
             Some(message_header) => match message_header.request_response_code {
                 SpdmResponseResponseCode::SpdmResponseAlgorithms => {
@@ -107,7 +113,7 @@ impl<'a> RequesterContext<'a> {
                             .common
                             .runtime_info
                             .message_a
-                            .append_message(&receive_buffer[..used])
+                            .append_message(&buf[..used])
                             .is_some()
                         {
                             return Ok(());
@@ -121,6 +127,7 @@ impl<'a> RequesterContext<'a> {
             None => spdm_result_err!(EIO),
         }
     }
+
 }
 
 #[cfg(test)]
