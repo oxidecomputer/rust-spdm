@@ -1,4 +1,4 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct WriteError {
     msg: &'static str,
     buf_size: usize,
@@ -47,20 +47,21 @@ impl<'a> Writer<'a> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ReadErrorKind {
     Header,
     Empty,
-    ReservedBytesNotZero,
+    ReservedByteNotZero,
 
     // An attempt to read one or more bytes not on a byte boundary
     Unaligned,
 
     // An attempt to read more than 7 bits in read_bits
     TooManyBits,
+    TooManyEntries,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ReadError {
     msg: &'static str,
     kind: ReadErrorKind,
