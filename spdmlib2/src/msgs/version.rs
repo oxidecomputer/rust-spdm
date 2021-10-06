@@ -27,7 +27,7 @@ impl Msg for GetVersion {
 impl GetVersion {
     pub fn parse_body(buf: &[u8]) -> Result<GetVersion, ReadError> {
         if buf.len() < 2 {
-            return Err(ReadError::new(Self::name(), ReadErrorKind::NotEnoughInput));
+            return Err(ReadError::new(Self::name(), ReadErrorKind::Empty));
         }
         // Reserved bytes
         if buf[0] != 0 || buf[1] != 0 {
@@ -111,4 +111,8 @@ impl Msg for Version {
     }
 }
 
-impl Version {}
+impl Version {
+    pub fn parse_body(buf: &[u8]) -> Result<GetVersion, ReadError> {
+        unimplemented!();
+    }
+}
