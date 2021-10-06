@@ -24,7 +24,7 @@ impl<'a> Reader<'a> {
         ret
     }
 
-    pub fn take(&mut self, len: usize) -> Option<&[u8]> {
+   pub fn take(&mut self, len: usize) -> Option<&[u8]> {
         if self.left() < len {
             return None;
         }

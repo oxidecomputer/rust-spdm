@@ -2,94 +2,103 @@ use codec::Writer;
 use spdmlib::error::SpdmResult;
 use spdmlib::spdm_err as err;
 
+use super::Msg;
+
 pub struct GetVersion {}
 
-impl GetVersion {
-    pub fn spdm_version() -> u8 {
+impl Msg for GetVersion {
+    fn spdm_version() -> u8 {
         0x10
     }
 
-    pub fn spdm_code() -> u8 {
+    fn spdm_code() -> u8 {
         0x84
     }
 
-    pub fn encode(&self, buf: &mut [u8]) -> SpdmResult<usize> {
-        let mut w = Writer::init(buf);
-        self.write(&mut w).ok_or_else(||err!(ENOMEM))
-    }
-
-    /// Parse the 2 byte message header.
-    /// Return `Ok(true)` if the encoded header is a correct GetVersion header.
-    /// Return `Ok(false)` if the header is another message type.
-    /// Return an error if the version is wrong for a GetVersion message.
-    ///
-    /// Prerequisite buf >= 2 bytes
-    pub fn parse_header(buf: &[u8]) -> SpdmResult<bool> {
-        assert!(buf.len() > 2);
-        if buf[1] != Self::spdm_code() {
-            Ok(false)
-        } else {
-            if buf[0] == Self::spdm_version() {
-                Ok(true)
-            } else {
-                Err(err!(EINVAL))
-            }
-        }
-    }
-
-    pub fn parse_body(&self, buf: &[u8]) -> SpdmResult<GetVersion> {
-        if buf.len() < 2 {
-            return Err(err!(EINVAL));
-        }
-        if buf[0] != 0 || buf[1] != 0 {
-            Err(err!(EINVAL))
-        } else {
-            Ok(GetVersion{})
-        }
-    }
-
-    fn write(&self, w: &mut Writer) -> Option<usize> {
-        w.push(Self::spdm_version())?;
-        w.push(Self::spdm_code())?;
-
+    fn encode_body(&self, w: &mut Writer) -> Option<usize> {
         // Reserved bytes
         w.push(0)?;
         w.push(0)
     }
 }
 
-pub struct Version {}
+impl GetVersion {
+    pub fn parse_body(buf: &[u8]) -> SpdmResult<GetVersion> {
+        if buf.len() < 2 {
+            return Err(err!(EINVAL));
+        }
+        if buf[0] != 0 || buf[1] != 0 {
+            Err(err!(EINVAL))
+        } else {
+            Ok(GetVersion {})
+        }
+    }
+}
 
-impl Version {
-    pub fn spdm_version() -> u8 {
+const MAX_ALLOWED_VERSIONS: usize = 2;
+
+pub struct VersionEntry {
+    major: u8,
+    minor: u8,
+    update: u8,
+    alpha: u8,
+}
+
+pub struct Version {
+    num_entries: u8,
+
+    // Just store versions encoded for simplicity.
+    entries: [VersionEntry; MAX_ALLOWED_VERSIONS],
+}
+
+// There are only 2 published versions (1.0 and 1.1)
+// They don't have update or alpha modifiers.
+impl Default for Version {
+    fn default() -> Version {
+        Version {
+            num_entries: 2,
+            entries: [
+                VersionEntry {
+                    major: 1,
+                    minor: 0,
+                    update: 0,
+                    alpha: 0,
+                },
+                VersionEntry {
+                    major: 1,
+                    minor: 1,
+                    update: 0,
+                    alpha: 0,
+                },
+            ],
+        }
+    }
+}
+
+impl Msg for Version {
+    fn spdm_version() -> u8 {
         0x10
     }
 
-    pub fn spdm_code() -> u8 {
+    fn spdm_code() -> u8 {
         0x04
     }
 
-    pub fn encode(&self, buf: &mut [u8]) -> SpdmResult<usize> {
-        let mut w = Writer::init(buf);
-        self.write(&mut w).ok_or_else(||err!(ENOMEM))
-    }
-
-    fn write(&self, w: &mut Writer) -> Option<usize> {
-        w.push(Self::spdm_version())?;
-        w.push(Self::spdm_code())?;
-
+    fn encode_body(&self, w: &mut Writer) -> Option<usize> {
         // Reserved bytes
         w.push(0)?;
         w.push(0)?;
         w.push(0)?;
 
-        // Number of versions supported.
-        w.push(2)?;
+        w.push(self.num_entries)?;
 
-        // There are only 2 published versions (1.1 and 1.2)
-        // They don't have update or alpha modifiers
-        w.push(0)?;
-        w.push(0x10)?;
-        w.push(0x11)
+        for v in self.entries.iter() {
+            w.push(v.alpha | (v.update << 4))?;
+            w.push(v.minor | (v.major << 4))?;
+        }
+
+        Some(w.used())
     }
 }
+
+impl Version {}
