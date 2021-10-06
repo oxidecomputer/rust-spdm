@@ -1,6 +1,4 @@
-use super::{ReadError, ReadErrorKind, WriteError, Writer};
-
-use super::Msg;
+use super::{Msg, ReadError, ReadErrorKind, WriteError, Writer};
 
 pub struct GetVersion {}
 
