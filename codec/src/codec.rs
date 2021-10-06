@@ -77,13 +77,13 @@ impl<'a> Writer<'a> {
         Some(added)
     }
 
-    pub fn push(&mut self, value: u8) -> Option<u8> {
+    pub fn push(&mut self, value: u8) -> Option<usize> {
         if self.left() < 1 {
             return None;
         }
         self.buf[self.offs] = value;
         self.offs += 1;
-        Some(value)
+        Some(self.offs)
     }
 
     pub fn left(&self) -> usize {

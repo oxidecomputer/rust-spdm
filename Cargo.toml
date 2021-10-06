@@ -5,10 +5,12 @@ default-members = [
     "codec",
     "test/spdm-requester-emu",
     "test/spdm-responder-emu",
+    "spdmlib2",
 ]
 
 members = [
     "spdmlib",
+    "spdmlib2",
     "codec",
     "test/spdm-requester-emu",
     "test/spdm-responder-emu",
