@@ -1,12 +1,14 @@
-use codec::Writer;
-use spdmlib::error::SpdmResult;
-use spdmlib::spdm_err as err;
+use super::{ReadError, ReadErrorKind, WriteError, Writer};
 
 use super::Msg;
 
 pub struct GetVersion {}
 
 impl Msg for GetVersion {
+    fn name() -> &'static str {
+        "GET_VERSION"
+    }
+
     fn spdm_version() -> u8 {
         0x10
     }
@@ -15,7 +17,7 @@ impl Msg for GetVersion {
         0x84
     }
 
-    fn encode_body(&self, w: &mut Writer) -> Option<usize> {
+    fn write_body(&self, w: &mut Writer) -> Result<usize, WriteError> {
         // Reserved bytes
         w.push(0)?;
         w.push(0)
@@ -23,12 +25,16 @@ impl Msg for GetVersion {
 }
 
 impl GetVersion {
-    pub fn parse_body(buf: &[u8]) -> SpdmResult<GetVersion> {
+    pub fn parse_body(buf: &[u8]) -> Result<GetVersion, ReadError> {
         if buf.len() < 2 {
-            return Err(err!(EINVAL));
+            return Err(ReadError::new(Self::name(), ReadErrorKind::NotEnoughInput));
         }
+        // Reserved bytes
         if buf[0] != 0 || buf[1] != 0 {
-            Err(err!(EINVAL))
+            Err(ReadError::new(
+                Self::name(),
+                ReadErrorKind::ReservedBytesNotZero,
+            ))
         } else {
             Ok(GetVersion {})
         }
@@ -47,7 +53,7 @@ pub struct VersionEntry {
 pub struct Version {
     num_entries: u8,
 
-    // Just store versions encoded for simplicity.
+    // Just store versions writed for simplicity.
     entries: [VersionEntry; MAX_ALLOWED_VERSIONS],
 }
 
@@ -76,6 +82,10 @@ impl Default for Version {
 }
 
 impl Msg for Version {
+    fn name() -> &'static str {
+        "VERSION"
+    }
+
     fn spdm_version() -> u8 {
         0x10
     }
@@ -84,7 +94,7 @@ impl Msg for Version {
         0x04
     }
 
-    fn encode_body(&self, w: &mut Writer) -> Option<usize> {
+    fn write_body(&self, w: &mut Writer) -> Result<usize, WriteError> {
         // Reserved bytes
         w.push(0)?;
         w.push(0)?;
@@ -97,7 +107,7 @@ impl Msg for Version {
             w.push(v.minor | (v.major << 4))?;
         }
 
-        Some(w.used())
+        Ok(w.offset())
     }
 }
 
