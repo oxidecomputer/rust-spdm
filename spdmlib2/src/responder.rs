@@ -12,9 +12,6 @@ mod error;
 mod version;
 mod capabilities;
 
-pub use error::RequesterError;
+pub use error::ResponderError;
 pub use version::{VersionState, VersionTransition};
 pub use capabilities::CapabilitiesState;
-
-
-

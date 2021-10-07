@@ -18,7 +18,7 @@ impl VersionState {
     ) -> Result<usize, RequesterError> {
         let size = GetVersion {}.write(buf)?;
 
-        // A GetVersion call always resets the state of the protocol.
+        // A GetVersion msg always resets the state of the protocol.
         transcript.clear();
         transcript.extend(&buf[..size])?;
         Ok(size)
@@ -36,7 +36,7 @@ impl VersionState {
                 expected: Version::name(),
                 got: buf[0],
             }),
-            Err(e) => Err(RequesterError::Read(e)),
+            Err(e) => Err(e.into()),
         }
     }
 
@@ -50,9 +50,7 @@ impl VersionState {
         if let Some(version_entry) = Self::find_max_matching_version(&version) {
             // SUCCESS!
             transcript.extend(buf);
-            let new_state = CapabilitiesState {
-                version: version_entry,
-            };
+            let new_state = CapabilitiesState::new(version_entry);
             Ok(VersionTransition::Capabilities(new_state))
         } else {
             Err(RequesterError::NoSupportedVersions { received: version })
