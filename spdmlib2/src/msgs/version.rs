@@ -40,22 +40,22 @@ impl GetVersion {
     }
 }
 
-const MAX_ALLOWED_VERSIONS: u8 = 2;
+pub const MAX_ALLOWED_VERSIONS: u8 = 2;
 
-#[derive(Default, Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Default, Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct VersionEntry {
-    major: u8,
-    minor: u8,
-    update: u8,
-    alpha: u8,
+    pub major: u8,
+    pub minor: u8,
+    pub update: u8,
+    pub alpha: u8,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Version {
-    num_entries: u8,
+    pub num_entries: u8,
 
     // Just store versions writed for simplicity.
-    entries: [VersionEntry; MAX_ALLOWED_VERSIONS as usize],
+    pub entries: [VersionEntry; MAX_ALLOWED_VERSIONS as usize],
 }
 
 impl Version {

@@ -1,7 +1,9 @@
-pub mod version;
 pub mod encoding;
+pub mod version;
 
-use encoding::{Writer, WriteError, ReadError, ReadErrorKind};
+use encoding::Writer;
+pub use encoding::{ReadError, ReadErrorKind, WriteError};
+pub use version::{GetVersion, Version, VersionEntry};
 
 pub trait Msg {
     // Names should be written as in the spec (UPPER_SNAKE_CASE).
@@ -42,5 +44,3 @@ pub trait Msg {
         w.push(Self::spdm_code())
     }
 }
-
-
