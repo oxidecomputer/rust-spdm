@@ -64,7 +64,6 @@ pub enum RequesterError {
     //
     // Version related messages
     //
-    TooManyVersions { received: u8 },
     NoSupportedVersions { received: Version },
 }
 
@@ -104,18 +103,16 @@ impl VersionState {
     ) -> Result<VersionTransition, RequesterError> {
         let version =
             Version::parse_body(&buf[HEADER_SIZE..]).map_err(|e| RequesterError::Read(e))?;
-        if version.num_entries > MAX_ALLOWED_VERSIONS {
-            return Err(RequesterError::TooManyVersions {
-                received: version.num_entries,
-            });
-        }
+
         if let Some(version_entry) = Self::find_max_matching_version(&version) {
+
             // SUCCESS!
             Self::transcribe(buf, transcript)?;
             let new_state = CapabilitiesState {
                 version: version_entry,
             };
             Ok(VersionTransition::Capabilities(new_state))
+
         } else {
             Err(RequesterError::NoSupportedVersions { received: version })
         }

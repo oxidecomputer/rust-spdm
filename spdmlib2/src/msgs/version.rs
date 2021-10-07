@@ -53,8 +53,6 @@ pub struct VersionEntry {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Version {
     pub num_entries: u8,
-
-    // Just store versions writed for simplicity.
     pub entries: [VersionEntry; MAX_ALLOWED_VERSIONS as usize],
 }
 
