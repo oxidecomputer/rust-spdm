@@ -5,6 +5,8 @@ use encoding::Writer;
 pub use encoding::{ReadError, ReadErrorKind, WriteError};
 pub use version::{GetVersion, Version, VersionEntry};
 
+pub const HEADER_SIZE: usize = 2;
+
 pub trait Msg {
     // Names should be written as in the spec (UPPER_SNAKE_CASE).
     fn name() -> &'static str;

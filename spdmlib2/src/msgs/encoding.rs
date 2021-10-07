@@ -1,3 +1,5 @@
+const HEADER_SIZE: usize = 2;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct WriteError {
     msg: &'static str,
