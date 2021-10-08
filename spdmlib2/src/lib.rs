@@ -4,7 +4,7 @@
 pub mod requester;
 pub mod responder;
 
-mod msgs;
+pub mod msgs;
 pub(crate) mod transcript;
 
 pub use transcript::Transcript;

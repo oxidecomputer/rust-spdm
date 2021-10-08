@@ -1,4 +1,4 @@
-//! A requester follows the typestate pattern
+//! A responder follows the typestate pattern
 //! https://cliffle.com/blog/rust-typestate/
 //!
 //!
@@ -15,3 +15,7 @@ mod capabilities;
 pub use error::ResponderError;
 pub use version::{VersionState, VersionTransition};
 pub use capabilities::CapabilitiesState;
+
+pub fn start() -> VersionState {
+    VersionState{}
+}

@@ -39,5 +39,9 @@ impl Transcript {
     pub fn get(&self) -> &[u8] {
         &self.buf[0..self.offset]
     }
+
+    pub fn len(&self) -> usize {
+        self.offset
+    }
 }
 

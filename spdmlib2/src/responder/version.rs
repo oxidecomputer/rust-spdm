@@ -2,6 +2,7 @@ use super::{CapabilitiesState, ResponderError};
 use crate::msgs::{GetVersion, Msg, Version, HEADER_SIZE};
 use crate::Transcript;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum VersionTransition {
     Capabilities(CapabilitiesState),
 }

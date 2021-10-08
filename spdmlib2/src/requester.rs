@@ -16,5 +16,6 @@ pub use error::RequesterError;
 pub use version::{VersionState, VersionTransition};
 pub use capabilities::CapabilitiesState;
 
-
-
+pub fn start() -> VersionState {
+    VersionState{}
+}

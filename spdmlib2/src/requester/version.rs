@@ -3,6 +3,7 @@ use crate::msgs::{GetVersion, Msg, Version, VersionEntry, HEADER_SIZE};
 use crate::Transcript;
 
 /// The possible sef of state transitions out of the VersionState.
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum VersionTransition {
     Capabilities(CapabilitiesState),
 }
@@ -12,7 +13,7 @@ pub struct VersionState {}
 
 impl VersionState {
     pub fn write_get_version(
-        &mut self,
+        &self,
         buf: &mut [u8],
         transcript: &mut Transcript,
     ) -> Result<usize, RequesterError> {
@@ -39,7 +40,7 @@ impl VersionState {
             Err(e) => Err(e.into()),
         }
     }
-
+   
     fn handle_version(
         self,
         buf: &[u8],
@@ -49,7 +50,7 @@ impl VersionState {
 
         if let Some(version_entry) = Self::find_max_matching_version(&version) {
             // SUCCESS!
-            transcript.extend(buf);
+            transcript.extend(buf)?;
             let new_state = CapabilitiesState::new(version_entry);
             Ok(VersionTransition::Capabilities(new_state))
         } else {
