@@ -1,6 +1,9 @@
+// Taken from rustls <https://github.com/rustls/rustls>
+//
+// Copyright (c) 2016 Joe Birr-Pixton and rustls project contributors
 // Copyright (c) 2020 Intel Corporation
 //
-// SPDX-License-Identifier: BSD-2-Clause-Patent
+// SPDX-License-Identifier: Apache-2.0
 
 /// A macro which defines an enum type.
 #[macro_export]
